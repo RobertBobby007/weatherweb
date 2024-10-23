@@ -26,5 +26,5 @@ jobs:
       - name: Deploy to GitHub Pages
         run: |
           echo "Deploying to GitHub Pages"
-          # Použití secretu
-          echo "API Key: ${{af421a40713d91d34510500fd2b171e2}}"
+          # Použití tajného klíče
+          echo "API Key: ${{ secrets.API_KEY }}"
