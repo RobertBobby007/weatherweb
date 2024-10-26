@@ -25,8 +25,6 @@ function getWeatherData(city) {
             }
             throw error;
         });
-}
-
 
 
 function displayWeatherData(data) {
