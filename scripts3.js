@@ -38,12 +38,11 @@ function displayWeatherData(data) {
                 <p>Teplota: ${data.main.temp}°C</p>
                 <p>Popis: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
                 <p>Vlhkost: ${data.main.humidity}%</p>
-                <p>Rychlost větru: ${data.wind.speed} m/s</p>
-            `;
+                <p>Rychlost větru: ${data.wind.speed} m/s</p>`;
+    }
 }
 
 function displayError(message) {
     const weatherInfo = document.getElementById('weatherInfo');
     weatherInfo.innerHTML = `<p style="color: red;">${message}</p>`;
-
 }
