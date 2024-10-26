@@ -1,5 +1,15 @@
-// sw.js
 self.addEventListener('install', event => {
+    event.waitUntil(
+        // Nejprve vymaž staré cache
+        caches.keys().then(cacheNames => {
+            return Promise.all(
+                cacheNames.map(cacheName => {
+                    return caches.delete(cacheName);
+                })
+            );
+        })
+    );
+
     event.waitUntil(
         caches.open('weather-cache').then(cache => {
             return cache.addAll([
@@ -9,7 +19,9 @@ self.addEventListener('install', event => {
                 '/scripts3.js',
                 '/manifest.json',
                 '/NRWW.png',
-            ]);
+            ]).catch(error => {
+                console.error('Chyba při ukládání do cache:', error);
+            });
         })
     );
 });

@@ -7,6 +7,7 @@ if ('serviceWorker' in navigator) {
 }
 
 
+
 document.getElementById('searchBtn').addEventListener('click', () => {
     const city = document.getElementById('cityInput').value;
     getWeatherData(city)
