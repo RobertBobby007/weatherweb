@@ -14,7 +14,7 @@ function getWeatherData(city) {
             if (response.status === 404) {
                 throw new Error('Město nenalezeno');
             } else if (!response.ok) {
-                throw new Error('Chyba při načítání dat');
+                throw new Error('Chyba při načítání dat, pokud tento problém přetrvává. Vytvořte Issue na GitHubu');
             }
             return response.json();
         });
@@ -24,7 +24,7 @@ function displayWeatherData(data) {
     const weatherInfo = document.getElementById('weatherInfo');
 
     const iconCode = data.weather[0].icon;
-    const iconUrl = `http://openweathermap.org/img/wn/${iconCode}.png`;
+    const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
 
     weatherInfo.innerHTML = `
                 <h2>${data.name}</h2>
