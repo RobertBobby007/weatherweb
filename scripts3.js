@@ -9,16 +9,25 @@ function getWeatherData(city) {
     const apiKey = 'af421a40713d91d34510500fd2b171e2';
     const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=cz`;
 
+
     return fetch(url)
         .then(response => {
             if (response.status === 404) {
                 throw new Error('Město nenalezeno');
             } else if (!response.ok) {
-                throw new Error('Chyba při načítání dat, pokud tento problém přetrvává. Vytvořte Issue na GitHubu');
+                throw new Error('Chyba při načítání dat, pokud tento problém přetrvává, vytvořte Issue na GitHubu');
             }
             return response.json();
+        })
+        .catch(error => {
+            if (error instanceof TypeError) {
+                throw new Error('Nejste připojen k internetu!');
+            }
+            throw error;
         });
 }
+
+
 
 function displayWeatherData(data) {
     const weatherInfo = document.getElementById('weatherInfo');
@@ -38,4 +47,5 @@ function displayWeatherData(data) {
 function displayError(message) {
     const weatherInfo = document.getElementById('weatherInfo');
     weatherInfo.innerHTML = `<p style="color: red;">${message}</p>`;
+
 }
