@@ -1,3 +1,12 @@
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+            .then(registration => console.log('Service Worker zaregistrován s oborem: ', registration.scope))
+            .catch(err => console.log('Registrace Service Worker selhala: ', err));
+    });
+}
+
+
 document.getElementById('searchBtn').addEventListener('click', () => {
     const city = document.getElementById('cityInput').value;
     getWeatherData(city)
