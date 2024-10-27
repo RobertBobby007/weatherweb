@@ -1,6 +1,6 @@
 {
   "name": "NRW Počasí",
-  "short_name": "NRW Počasí",
+  "short_name": "NRWW",
   "description": "Popis aplikace",
   "start_url": "/weatherweb/",
   "display": "standalone",
