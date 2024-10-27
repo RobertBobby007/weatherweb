@@ -1,11 +1,11 @@
 {
   "name": "NRW Počasí",
-  "short_name": "NRW",
+  "short_name": "NRW Počasí",
   "description": "Popis aplikace",
   "start_url": "/weatherweb/",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#007bff",
+  "theme_color": "#ffe182",
   "icons": [
     {
       "src": "/weatherweb/NRWW.png",
