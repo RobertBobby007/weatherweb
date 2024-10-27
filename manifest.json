@@ -2,18 +2,18 @@
   "name": "NRW Počasí",
   "short_name": "NRW",
   "description": "Popis aplikace",
-  "start_url": "https://robertbobby007.github.io/weatherweb/",
+  "start_url": "/weatherweb/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007bff",
   "icons": [
     {
-      "src": "/NRWW.png",
+      "src": "/weatherweb/NRWW.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/NRWW.png",
+      "src": "/weatherweb/NRWW.png",
       "sizes": "512x512",
       "type": "image/png"
     }

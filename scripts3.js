@@ -1,11 +1,7 @@
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('Service Worker zaregistrován s oborem: ', registration.scope);
-
-                registration.update();
-            })
+        navigator.serviceWorker.register('/weatherweb/sw.js')
+            .then(registration => console.log('Service Worker zaregistrován s oborem: ', registration.scope))
             .catch(err => console.log('Registrace Service Worker selhala: ', err));
     });
 }
