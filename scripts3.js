@@ -49,11 +49,11 @@ function displayWeatherData(data) {
 
     weatherInfo.innerHTML = `
         <h2>${data.name}</h2>
+        <p>V ${data.name} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
         <p>Teplota: ${data.main.temp}°C</p>
-        <p>Popis: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
+        <p>Pocitová teplota:${data.main.feels_like}°C</p>
         <p>Vlhkost: ${data.main.humidity}%</p>
-        <p>Rychlost větru: ${data.wind.speed} m/s</p>
-    `;
+        <p>Rychlost větru: ${data.wind.speed} m/s</p>`;
 }
 
 function displayError(message) {
