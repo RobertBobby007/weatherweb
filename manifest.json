@@ -2,7 +2,7 @@
   "name": "NRW Počasí",
   "short_name": "NRW Počasí",
   "description": "NRW Počasí neboli NRWW je aplikace, ktera zobrazuje aktuální počasí",
-  "version": "beta 1.0"
+  "version": "beta 1.0",
   "start_url": "/weatherweb/",
   "display": "standalone",
   "background_color": "#ffffff",
