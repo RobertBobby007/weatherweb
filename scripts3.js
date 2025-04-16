@@ -6,14 +6,72 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+// Funkce pro uložení hledaného města do localStorage
+function saveSearchedCity(city) {
+    let history = JSON.parse(localStorage.getItem('cityHistory') || '[]');
+    if (!history.includes(city)) {
+        history.unshift(city);
+        history = history.slice(0, 10);
+        localStorage.setItem('cityHistory', JSON.stringify(history));
+    }
+}
 
-
-
+// Vyhledání po kliknutí na tlačítko
 document.getElementById('searchBtn').addEventListener('click', () => {
     const city = document.getElementById('cityInput').value;
+    saveSearchedCity(city);
     getWeatherData(city)
         .then(displayWeatherData)
         .catch(err => displayError(err.message));
+});
+
+// Vyhledání po stisknutí Enter
+document.getElementById('cityInput').addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        document.getElementById('searchBtn').click();
+    }
+});
+
+// Autocomplete s historií i API
+document.getElementById('cityInput').addEventListener('input', function () {
+    const query = this.value;
+    const datalist = document.getElementById('cities');
+    datalist.innerHTML = '';
+
+    // Nejprve nabídni historii
+    let history = JSON.parse(localStorage.getItem('cityHistory') || '[]');
+    history.filter(h => h.toLowerCase().includes(query.toLowerCase()))
+        .forEach(h => {
+            const option = document.createElement('option');
+            option.value = h;
+            datalist.appendChild(option);
+        });
+
+    if (query.length < 2) return;
+
+    const apiKey = 'af421a40713d91d34510500fd2b171e2';
+    const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=5&appid=${apiKey}`;
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            data.forEach(city => {
+                let label = city.name;
+                if (city.state) {
+                    label += `, ${city.state}`;
+                }
+                label += `, ${city.country}`;
+                if (!history.includes(label)) {
+                    const option = document.createElement('option');
+                    option.value = label;
+                    datalist.appendChild(option);
+                }
+            });
+        })
+        .catch(() => {
+            // Chyby autocomplete ignorujeme
+        });
 });
 
 function getWeatherData(city) {
@@ -55,4 +113,84 @@ function displayWeatherData(data) {
 function displayError(message) {
     const weatherInfo = document.getElementById('weatherInfo');
     weatherInfo.innerHTML = `<p style="color: red;">${message}</p>`;
+}
+
+// Přidat tlačítko pro získání počasí podle polohy uživatele
+const container = document.querySelector('.container');
+const geoBtn = document.createElement('button');
+geoBtn.textContent = 'Získat počasí podle polohy';
+geoBtn.id = 'geoBtn';
+container.insertBefore(geoBtn, document.getElementById('weatherInfo'));
+
+let lastPosition = null;
+
+document.getElementById('geoBtn').addEventListener('click', () => {
+    if (!navigator.geolocation) {
+        displayError('Geolokace není podporována vaším prohlížečem.');
+        return;
+    }
+    if (lastPosition) {
+        // Pokud už máme polohu, použij ji znovu
+        const lat = lastPosition.coords.latitude;
+        const lon = lastPosition.coords.longitude;
+        getWeatherByCoords(lat, lon)
+            .then(data => {
+                let label = data.name;
+                if (data.sys && data.sys.state) {
+                    label += `, ${data.sys.state}`;
+                }
+                if (data.sys && data.sys.country) {
+                    label += `, ${data.sys.country}`;
+                }
+                document.getElementById('cityInput').value = label;
+                saveSearchedCity(label);
+                displayWeatherData(data);
+            })
+            .catch(err => displayError(err.message));
+        return;
+    }
+    // Jinak požádej o polohu
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            lastPosition = position;
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            getWeatherByCoords(lat, lon)
+                .then(data => {
+                    let label = data.name;
+                    if (data.sys && data.sys.state) {
+                        label += `, ${data.sys.state}`;
+                    }
+                    if (data.sys && data.sys.country) {
+                        label += `, ${data.sys.country}`;
+                    }
+                    document.getElementById('cityInput').value = label;
+                    saveSearchedCity(label);
+                    displayWeatherData(data);
+                })
+                .catch(err => displayError(err.message));
+        },
+        () => {
+            displayError('Nepodařilo se získat polohu.');
+        }
+    );
+});
+
+function getWeatherByCoords(lat, lon) {
+    const apiKey = 'af421a40713d91d34510500fd2b171e2';
+    const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=cz`;
+
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Chyba při načítání dat podle polohy.');
+            }
+            return response.json();
+        })
+        .catch(error => {
+            if (error instanceof TypeError) {
+                throw new Error('Nejste připojen k internetu!');
+            }
+            throw error;
+        });
 }
