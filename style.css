@@ -48,23 +48,22 @@ button:hover {
     text-align: center;
 }
 
-
+#cityInput {
+    font-size: 16px;
+}
 
 #weatherInfo img {
     vertical-align: middle;
     width: 35px;
     height: 35px;
     margin-left: 5px;
-
 }
-
 
 @media (max-width: 600px) {
     .container {
         width: 90%;
         padding: 10px;
     }
-
 
     #weatherInfo img {
         width: 25px;
