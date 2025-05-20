@@ -102,8 +102,8 @@ function displayWeatherData(data) {
     const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
 
     weatherInfo.innerHTML = `
-        <h2>${data.name}</h2>
-        <p>V ${data.name} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
+        <h2>${data.local_names.[cs]}</h2>
+        <p>V ${data.local_names.[cs]} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
         <p>Teplota: ${data.main.temp}°C</p>
         <p>Pocitová teplota:${data.main.feels_like}°C</p>
         <p>Vlhkost: ${data.main.humidity}%</p>
