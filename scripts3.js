@@ -19,7 +19,19 @@ const countryTranslations = {
     'ES': 'Španělsko'
 };
 
-// Funkce pro uložení hledaného města do localStorage
+const cityTranslations = {
+    "Prague": "Praha",
+    "Brno": "Brno",
+    "Ostrava": "Ostrava",
+    "Pilsen": "Plzeň",
+    "Plzen": "Plzeň",
+    "Olomouc": "Olomouc",
+    "Liberec": "Liberec",
+    "Hradec Králové": "Hradec Králové",
+    "České Budějovice": "České Budějovice"
+    // přidej si další jak budeš chtít
+};
+
 function saveSearchedCity(city) {
     let history = JSON.parse(localStorage.getItem('cityHistory') || '[]');
     if (!history.includes(city)) {
@@ -29,7 +41,6 @@ function saveSearchedCity(city) {
     }
 }
 
-// Vyhledání po kliknutí na tlačítko
 document.getElementById('searchBtn').addEventListener('click', () => {
     const city = document.getElementById('cityInput').value;
     saveSearchedCity(city);
@@ -38,21 +49,22 @@ document.getElementById('searchBtn').addEventListener('click', () => {
         .catch(err => displayError(err.message));
 });
 
-// Vyhledání po stisknutí Enter
 document.getElementById('cityInput').addEventListener('keydown', function (event) {
     if (event.key === 'Enter') {
         event.preventDefault();
+        const city = this.value;
+        // Vyčistit nabídku měst
+        document.getElementById('cities').innerHTML = '';
         document.getElementById('searchBtn').click();
     }
 });
 
-// Autocomplete s historií i API
+
 document.getElementById('cityInput').addEventListener('input', function () {
     const query = this.value;
     const datalist = document.getElementById('cities');
     datalist.innerHTML = '';
 
-    // Nejprve nabídni historii
     let history = JSON.parse(localStorage.getItem('cityHistory') || '[]');
     history.filter(h => h.toLowerCase().includes(query.toLowerCase()))
         .forEach(h => {
@@ -83,9 +95,19 @@ document.getElementById('cityInput').addEventListener('input', function () {
                 }
             });
         })
-        .catch(() => {
-            // Chyby autocomplete ignorujeme
-        });
+        .catch(() => { });
+});
+
+// TADY JE NOVÝ KÓD PRO SKRYTÍ AUTOCOMPLETE PO VÝBĚRU
+document.getElementById('cityInput').addEventListener('change', function () {
+    const city = this.value;
+    saveSearchedCity(city);
+    getWeatherData(city)
+        .then(displayWeatherData)
+        .catch(err => displayError(err.message));
+
+    this.blur();
+    setTimeout(() => this.focus(), 100);
 });
 
 function getWeatherData(city) {
@@ -111,13 +133,13 @@ function getWeatherData(city) {
 
 function displayWeatherData(data) {
     const weatherInfo = document.getElementById('weatherInfo');
-
+    const displayCityName = cityTranslations[data.name] || data.name;
     const iconCode = data.weather[0].icon;
     const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
 
     weatherInfo.innerHTML = `
-        <h2>${data.name}</h2>
-        <p>V ${data.name} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
+        <h2>${displayCityName}</h2>
+        <p>V ${displayCityName} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
         <p>Teplota: ${data.main.temp}°C</p>
         <p>Pocitová teplota: ${data.main.feels_like}°C</p>
         <p>Vlhkost: ${data.main.humidity}%</p>
@@ -129,7 +151,6 @@ function displayError(message) {
     weatherInfo.innerHTML = `<p style="color: red;">${message}</p>`;
 }
 
-// Přidat tlačítko pro získání počasí podle polohy uživatele
 const container = document.querySelector('.container');
 const geoBtn = document.createElement('button');
 geoBtn.textContent = 'Získat počasí podle polohy';
@@ -148,16 +169,9 @@ document.getElementById('geoBtn').addEventListener('click', () => {
         const lon = lastPosition.coords.longitude;
         getWeatherByCoords(lat, lon)
             .then(data => {
-                let label = data.name;
-                if (data.sys && data.sys.state) {
-                    label += `, ${data.sys.state}`;
-                }
-                const countryName = countryTranslations[data.sys.country] || data.sys.country;
-                if (data.sys && data.sys.country) {
-                    label += `, ${countryName}`;
-                }
-                document.getElementById('cityInput').value = label;
-                saveSearchedCity(label);
+                const displayCityName = cityTranslations[data.name] || data.name;
+                document.getElementById('cityInput').value = displayCityName;
+                saveSearchedCity(displayCityName);
                 displayWeatherData(data);
             })
             .catch(err => displayError(err.message));
@@ -170,16 +184,9 @@ document.getElementById('geoBtn').addEventListener('click', () => {
             const lon = position.coords.longitude;
             getWeatherByCoords(lat, lon)
                 .then(data => {
-                    let label = data.name;
-                    if (data.sys && data.sys.state) {
-                        label += `, ${data.sys.state}`;
-                    }
-                    const countryName = countryTranslations[data.sys.country] || data.sys.country;
-                    if (data.sys && data.sys.country) {
-                        label += `, ${countryName}`;
-                    }
-                    document.getElementById('cityInput').value = label;
-                    saveSearchedCity(label);
+                    const displayCityName = cityTranslations[data.name] || data.name;
+                    document.getElementById('cityInput').value = displayCityName;
+                    saveSearchedCity(displayCityName);
                     displayWeatherData(data);
                 })
                 .catch(err => displayError(err.message));
