@@ -6,6 +6,19 @@ if ('serviceWorker' in navigator) {
     });
 }
 
+const countryTranslations = {
+    'CZ': 'Česko',
+    'SK': 'Slovensko',
+    'DE': 'Německo',
+    'PL': 'Polsko',
+    'AT': 'Rakousko',
+    'US': 'USA',
+    'GB': 'Velká Británie',
+    'FR': 'Francie',
+    'IT': 'Itálie',
+    'ES': 'Španělsko'
+};
+
 // Funkce pro uložení hledaného města do localStorage
 function saveSearchedCity(city) {
     let history = JSON.parse(localStorage.getItem('cityHistory') || '[]');
@@ -61,7 +74,8 @@ document.getElementById('cityInput').addEventListener('input', function () {
                 if (city.state) {
                     label += `, ${city.state}`;
                 }
-                label += `, ${city.country}`;
+                const countryName = countryTranslations[city.country] || city.country;
+                label += `, ${countryName}`;
                 if (!history.includes(label)) {
                     const option = document.createElement('option');
                     option.value = label;
@@ -105,7 +119,7 @@ function displayWeatherData(data) {
         <h2>${data.name}</h2>
         <p>V ${data.name} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
         <p>Teplota: ${data.main.temp}°C</p>
-        <p>Pocitová teplota:${data.main.feels_like}°C</p>
+        <p>Pocitová teplota: ${data.main.feels_like}°C</p>
         <p>Vlhkost: ${data.main.humidity}%</p>
         <p>Rychlost větru: ${data.wind.speed} m/s</p>`;
 }
@@ -130,7 +144,6 @@ document.getElementById('geoBtn').addEventListener('click', () => {
         return;
     }
     if (lastPosition) {
-        // Pokud už máme polohu, použij ji znovu
         const lat = lastPosition.coords.latitude;
         const lon = lastPosition.coords.longitude;
         getWeatherByCoords(lat, lon)
@@ -139,8 +152,9 @@ document.getElementById('geoBtn').addEventListener('click', () => {
                 if (data.sys && data.sys.state) {
                     label += `, ${data.sys.state}`;
                 }
+                const countryName = countryTranslations[data.sys.country] || data.sys.country;
                 if (data.sys && data.sys.country) {
-                    label += `, ${data.sys.country}`;
+                    label += `, ${countryName}`;
                 }
                 document.getElementById('cityInput').value = label;
                 saveSearchedCity(label);
@@ -149,7 +163,6 @@ document.getElementById('geoBtn').addEventListener('click', () => {
             .catch(err => displayError(err.message));
         return;
     }
-    // Jinak požádej o polohu
     navigator.geolocation.getCurrentPosition(
         position => {
             lastPosition = position;
@@ -161,8 +174,9 @@ document.getElementById('geoBtn').addEventListener('click', () => {
                     if (data.sys && data.sys.state) {
                         label += `, ${data.sys.state}`;
                     }
+                    const countryName = countryTranslations[data.sys.country] || data.sys.country;
                     if (data.sys && data.sys.country) {
-                        label += `, ${data.sys.country}`;
+                        label += `, ${countryName}`;
                     }
                     document.getElementById('cityInput').value = label;
                     saveSearchedCity(label);
