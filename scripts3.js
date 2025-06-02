@@ -137,13 +137,87 @@ function displayWeatherData(data) {
     const iconCode = data.weather[0].icon;
     const iconUrl = `https://openweathermap.org/img/wn/${iconCode}.png`;
 
-    weatherInfo.innerHTML = `
-        <h2>${displayCityName}</h2>
-        <p>V ${displayCityName} je: ${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
-        <p>Teplota: ${data.main.temp}°C</p>
-        <p>Pocitová teplota: ${data.main.feels_like}°C</p>
-        <p>Vlhkost: ${data.main.humidity}%</p>
-        <p>Rychlost větru: ${data.wind.speed} m/s</p>`;
+    // Pokud máme souřadnice, zobraz teplotu a stav počasí NAD hodinovou předpověď, zbytek nech dole
+    if (data.coord && data.coord.lat && data.coord.lon) {
+        getHourlyForecast(data.coord.lat, data.coord.lon)
+            .then(hourlyHtml => {
+                let html = `
+                    <h2>${displayCityName}</h2>
+                    <div style="margin-bottom:10px;">
+                        <p>${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
+                        <p>${data.main.temp}°C</p>
+                    </div>
+                    ${hourlyHtml}
+                    <div style="margin-top:10px;">
+                        <p>Pocitová teplota: ${data.main.feels_like}°C</p>
+                        <p>Vlhkost: ${data.main.humidity}%</p>
+                        <p>Rychlost větru: ${data.wind.speed} m/s</p>
+                    </div>
+                `;
+                weatherInfo.innerHTML = html;
+            })
+            .catch(() => {
+                let html = `
+                    <h2>${displayCityName}</h2>
+                    <div style="margin-bottom:10px;">
+                        <p>${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
+                        <p>${data.main.temp}°C</p>
+                    </div>
+                    <p style='color:gray;'>Nepodařilo se načíst hodinovou předpověď.</p>
+                    <div style="margin-top:10px;">
+                        <p>Pocitová teplota: ${data.main.feels_like}°C</p>
+                        <p>Vlhkost: ${data.main.humidity}%</p>
+                        <p>Rychlost větru: ${data.wind.speed} m/s</p>
+                    </div>
+                `;
+                weatherInfo.innerHTML = html;
+            });
+    } else {
+        let html = `
+            <h2>${displayCityName}</h2>
+            <div style="margin-bottom:10px;">
+                <p>${data.weather[0].description} <img src="${iconUrl}" alt="Weather icon"></p>
+                <p>Teplota: ${data.main.temp}°C</p>
+            </div>
+            <div style="margin-top:10px;">
+                <p>Pocitová teplota: ${data.main.feels_like}°C</p>
+                <p>Vlhkost: ${data.main.humidity}%</p>
+                <p>Rychlost větru: ${data.wind.speed} m/s</p>
+            </div>
+        `;
+        weatherInfo.innerHTML = html;
+    }
+}
+
+// Přidat funkci pro získání hodinové předpovědi
+function getHourlyForecast(lat, lon) {
+    const apiKey = 'af421a40713d91d34510500fd2b171e2';
+    const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=cz`;
+
+    return fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error();
+            return response.json();
+        })
+        .then(data => {
+            // Vezmeme prvních 6 hodin (3hodinové intervaly)
+            const hours = data.list.slice(0, 6);
+            let html = `<h3>Hodinová předpověď</h3><div style="display:flex;gap:10px;overflow-x:auto;">`;
+            hours.forEach(hour => {
+                const time = new Date(hour.dt * 1000).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+                const icon = hour.weather[0].icon;
+                html += `
+                    <div style="min-width:90px;text-align:center;">
+                        <div>${time}</div>
+                        <img src="https://openweathermap.org/img/wn/${icon}.png" alt="" />
+                        <div>${hour.main.temp}°C</div>
+                        <div style="font-size:12px;">${hour.weather[0].description}</div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            return html;
+        });
 }
 
 function displayError(message) {
